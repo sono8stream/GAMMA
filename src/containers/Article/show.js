@@ -17,27 +17,31 @@ const messageRef = firebaseDB.ref('messages');
 const processor=remark().use(reactRenderer);
 
 class ArticleShow extends Component {
-  constructor(props){
-    super(props);
-    this.state={
-      text: "# hello GAMMA.",
+    constructor(props) {
+        super(props);
+        this.state = {
+            text: "# hello GAMMA.",
+        }
     }
-  }
 
-  onTextChange(e){
-    this.setState({text: e.target.value});
-  }
+    onTextChange(e) {
+        this.setState({ text: e.target.value });
+    }
 
-  render() {
+    render() {
 
-    return (
-      <div>
-        <Input value={this.state.text} multiline="true"
-          onChange={(e)=>this.onTextChange(e)}/>
-        {processor.processSync(this.state.text).contents}
-      </div>
-    );
-  }  
+        return (
+            <div>
+                <span>
+                    <Input value={this.state.text} multiline="true"
+                        onChange={(e) => this.onTextChange(e)} />
+                </span>
+                <span>
+                    {processor.processSync(this.state.text).contents}
+                </span>
+            </div>
+        );
+    }
 }
 
 export default ArticleShow;

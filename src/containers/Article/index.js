@@ -19,56 +19,65 @@ const blogRef = firebaseDB.ref('blogs');
 const processor=remark().use(reactRenderer);
 
 class Articles extends Component {
-  constructor(props){
-    super(props);
-    this.state={
-      articles: [],
-      text: "# hello GAMMA.",
+    constructor(props) {
+        super(props);
+        this.state = {
+            articles: [],
+        }
     }
-  }
 
-  componentWillMount(){
-    blogRef.on("child_added",(snapshot)=>{
-      let val=snapshot.val();
-      let newArticles=this.state.articles;
-      newArticles.push({
-        text: val.text,
-        title: val.title,
-      });
-    })
-  }
+    componentWillMount() {
+        blogRef.on("child_added", (snapshot) => {
+            let val = snapshot.val();
+            let newArticles = this.state.articles;
+            newArticles.push({
+                date: val.date,
+                preview: val.preview,
+                title: val.title,
+            });
+            this.setState({ articles: newArticles });
+        })
+    }
 
-  onTextChange(e){
-    this.setState({text: e.target.value});
-  }
+    render() {
 
-  render() {
+        return (
+            <div>
+                <AppBar position="fixed">
+                    <Toolbar variant="dense">
+                        <Typography variant="title" color="inherit">
+                            GAMMA Blog
+                        </Typography>
+                    </Toolbar>
+                </AppBar>
 
-    return (
-      <div>        
-        <AppBar position="fixed">
-          <Toolbar variant="dense">
-            <Typography variant="title" color="inherit">
-              GAMMA Blog
-            </Typography>
-          </Toolbar>
-        </AppBar>
+                <div style={{ height: 80 }} />
 
-        <div style={{height:50}} />
-        <Input value={this.state.text} multiline="true"
-          onChange={(e)=>this.onTextChange(e)}/>
-        {processor.processSync(this.state.text).contents}
-        {this.state.articles.map((a,i)=>{
-            return (
-              <div className="Message" key={i}>
-                {a.title}
-                {a.text}
-              </div>
-            );
-          })}
-      </div>
-    );
-  }  
+                <Grid container spacing={16}>
+                {this.state.articles.map((a, i) => {
+                        return (
+                            <Grid item xs={12}>
+                        <Card>
+                            <CardContent>
+                                <Typography color="textSecondary" gutterBottom>
+                                    {a.date}
+                                </Typography>
+                                <Typography variant="h5" component="h2">
+                                    {a.title}
+                                        </Typography>
+                                        <br/>
+                                <Typography component="p">
+                                    {a.preview}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                        </Grid>
+                    );
+                })}
+                </Grid>
+            </div>
+        );
+    }
 }
 
 export default Articles;
