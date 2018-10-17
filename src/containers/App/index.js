@@ -86,8 +86,8 @@ class App extends Component {
   render() {
 
     return (
-      <div className="App">
-        <AppBar position="fixed">
+        <div className="App">
+            <AppBar position="fixed" style={{ background: styles.palette.primary.main }}>
           <Toolbar variant="dense">
             <Typography variant="title" color="inherit">
               GAMMA mini TALK

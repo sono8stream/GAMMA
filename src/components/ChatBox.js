@@ -26,7 +26,7 @@ export default class ChatBox extends Component{
                   name="text"
                   onChange={this.props.onTextChange}
                 />
-                <Button variant="outlined" color="primary"
+                        <Button variant="outlined" color= "primary"
                   onClick={this.props.onButtonClick}>送信</Button>
               </CardContent>
             </Card>
