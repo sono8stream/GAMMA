@@ -2,10 +2,10 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import registerServiceWorker from './registerServiceWorker';
 import Routes from './routes';
-import { createStore} from "redux";
-import combinedReducer from './reducers';
+import { createStore } from 'redux';
+import combineReducers from './reducers';
 
-const store = createStore(combinedReducer);
+const store = createStore(combineReducers);
 
 ReactDOM.render(
     <Routes store={store} />,

@@ -6,6 +6,7 @@ import List from '@material-ui/core/List';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import Counter from '../counter';
 
 const messageRef = firebaseDB.ref('messages');
 const styles={
@@ -94,7 +95,8 @@ class App extends Component {
             </Typography>
           </Toolbar>
         </AppBar>
-        <div style={{height:50}} />
+            <div style={{ height: 50 }} />
+            <Counter />
         <List>
           {this.state.messages.map((m,i)=>{
             return (
@@ -106,7 +108,7 @@ class App extends Component {
         </List>
         <ChatBox onTextChange={this.onTextChange}
           onButtonClick={this.onButtonClick} 
-          />
+            />
       </div>
     );
   }  

@@ -3,9 +3,6 @@ import {firebaseDB} from '../../firebase';
 import remark from 'remark';
 import reactRenderer from 'remark-react';
 
-import Message from '../../components/Message';
-import ChatBox from '../../components/ChatBox';
-
 import Input from '@material-ui/core/Input';
 import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';

@@ -9,12 +9,20 @@
   },
   "rules": {
     "no-console": false,
-    "ordered-imports": [false,{"grouped-imports": false}],
-    "member-ordering": false
+    "ordered-imports": [
+      false,
+      { "grouped-imports": false }
+    ],
+    "member-ordering": false,
+    "object-literal-sort-keys": false
   },
   "jsRules": {
     "no-console": false,
-    "ordered-imports": [false,{"grouped-imports": false}],
-    "member-ordering": false
+    "ordered-imports": [
+      false,
+      { "grouped-imports": false }
+    ],
+    "member-ordering": false,
+    "object-literal-sort-keys": false
   }
 }
