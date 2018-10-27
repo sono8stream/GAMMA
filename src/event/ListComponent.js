@@ -4,6 +4,7 @@ import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 import DateRangeIcon from '@material-ui/icons/DateRange';
 import PlaceIcon from '@material-ui/icons/Place';
 
@@ -13,7 +14,7 @@ import '../style/theme.css';
 export default class EventList extends Component {
     constructor(props) {
         super(props);
-        document.body.className = "section";
+        document.body.className = "body";
     }
 
     render() {
@@ -25,14 +26,16 @@ export default class EventList extends Component {
         return (
             <div className>
                 <Header text="GAMMA Event" />
+                <br/>
                 {this.props.events.map((event, id) =>
-                    <Grid item xs={12} key={id} className="section">
+                    <Grid item sm={4} xs={12} key={id}>
                         <Card>
                             <CardActionArea>
                                 <CardContent>
-                                    <Typography variant="h5">
+                                    <Typography variant="h6" align="center">
                                         {event.title}
                                     </Typography>
+                                    <Divider light />
                                     <br />
                                     <Typography variant="subtitle1" gutterBottom>
                                         <DateRangeIcon />{event.date}

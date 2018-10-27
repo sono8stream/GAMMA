@@ -28,7 +28,9 @@
     color: #ffffff;
 }
 
-.section {
+.body {
     background-color: #EEEEEE;
     background-size: cover;
+    margin: 0% 2%;
+    padding: 0;
 }

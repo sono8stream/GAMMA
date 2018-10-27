@@ -16,7 +16,7 @@ export default function Header(props) {
                     </Typography>
                 </Toolbar>
             </AppBar>
-            <div style={{ height: 60 }} />
+            <div style={{ height: 80 }} />
         </div>
     );
 }
