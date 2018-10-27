@@ -1,4 +1,5 @@
 import { firebaseDB } from '../firebase';
+import Message from '../components/Message';
 
 export const INCREMENT = 'INCREMENT';
 
@@ -17,27 +18,21 @@ export const decrement = value => ({
 export const SEND_MESSAGE = 'SEND_MESSAGE';
 
 const messageRef = firebaseDB.ref('messages');
-let sendSucceeded = false;
+//let sendSucceeded = false;
 
-function send(value) {
-    console.log("sending");
+export function sender(value,dispatch) {
     messageRef.push({
         profile_image: "aiueo",
         text: value,
         user_name: "anonymous",
-    }, error => sendSucceeded = !error);
-    return true;
+    }, error => {
+        if (!error) {
+            let sendSucceed = true;
+            console.log(sendSucceed);
+            dispatch({
+                type: SEND_MESSAGE,
+                sent: sendSucceed
+            });
+        }
+    });
 }
-//ƒAƒ[ŠÖ”‚¾‚Æshadow name error
-export const sendMessage = value => ({
-    type: SEND_MESSAGE,
-    sent: (() => {
-        console.log("sending");
-        messageRef.push({
-            profile_image: "aiueo",
-            text: value,
-            user_name: "anonymous",
-        }, error => sendSucceeded = !error);
-        return true;
-    })()
-});

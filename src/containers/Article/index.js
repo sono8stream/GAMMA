@@ -35,12 +35,11 @@ class Articles extends Component {
     }
 
     render() {
-
         return (
             <div>
                 <AppBar position="fixed">
                     <Toolbar variant="dense">
-                        <Typography variant="title" color="inherit">
+                        <Typography variant="h5" color="inherit">
                             GAMMA Blog
                         </Typography>
                     </Toolbar>
@@ -49,8 +48,7 @@ class Articles extends Component {
                 <div style={{ height: 80 }} />
 
                 <Grid container spacing={16}>
-                {this.state.articles.map((a, i) => {
-                        return (
+                {this.state.articles.map(a => 
                             <Grid item xs={12}>
                         <Card>
                             <CardContent>
@@ -67,8 +65,7 @@ class Articles extends Component {
                             </CardContent>
                         </Card>
                         </Grid>
-                    );
-                })}
+                    )}
                 </Grid>
             </div>
         );

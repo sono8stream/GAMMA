@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 
 import App from './containers/App';
 import Articles from './containers/Article';
+import EventList from './event/ListContainer';
 
 const Routes = (props) => (
     <Provider store={props.store}>
@@ -12,6 +13,7 @@ const Routes = (props) => (
             <div>
                 <Route exact path="/" component={App} />
                 <Route path="/blogs" component={Articles} />
+                <Route path="/events" component={EventList} />
             </div>
         </BrowserRouter>
     </Provider>

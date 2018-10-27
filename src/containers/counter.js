@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { increment, decrement, sendMessage } from '../actions';
+import { increment, decrement, sender } from '../actions';
 import Counter from '../components/Counter';
 
 const mapStateToProps = state => ({
@@ -10,7 +10,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
     increment: value => dispatch(increment(value)),
     decrement: value => dispatch(decrement(value)),
-    sendValue: value => dispatch(sendMessage(value)),
+    sendValue: value => sender(value, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Counter);

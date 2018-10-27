@@ -10,7 +10,7 @@ export default class ChatBox extends Component{
     render(){
         return(
             <div className="ChatBox">
-                <Grid container spacing={10}
+                <Grid container spacing={8}
                     style={{
                     bottom: 20,
                         position: 'fixed',
