@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
+
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
@@ -17,6 +19,10 @@ export default class EventList extends Component {
         document.body.className = "body";
     }
 
+    toShow(id) {
+        this.props.history.push(`/events/${id}`);
+    }
+
     render() {
         if (!this.props.events) {
             return null;
@@ -24,13 +30,13 @@ export default class EventList extends Component {
         console.log(this.props.events);
 
         return (
-            <div className>
+            <div>
                 <Header text="GAMMA Event" />
                 <br/>
                 {this.props.events.map((event, id) =>
                     <Grid item sm={4} xs={12} key={id}>
                         <Card>
-                            <CardActionArea>
+                            <CardActionArea onClick={() => this.toShow(event.id)}>
                                 <CardContent>
                                     <Typography variant="h6" align="center">
                                         {event.title}
@@ -50,3 +56,5 @@ export default class EventList extends Component {
         );
     }
 }
+
+//export default EventList;
