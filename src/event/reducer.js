@@ -1,4 +1,4 @@
-import { FETCH_EVENTS } from './actions';
+import { FETCH_EVENTS,FETCH_A_EVENT } from './actions';
 
 export default function eventReducer(eventState = [], action) {
     switch (action.type) {
@@ -16,7 +16,19 @@ export default function eventReducer(eventState = [], action) {
                         });
                 });
             }
+            console.log([...events]);
             return [...events];
+        case FETCH_A_EVENT:
+            let e = action.event;
+            eventState.push({
+                title: e.title,
+                id: action.id,
+                date: e.date,
+                place: e.place,
+                text: e.text,
+            });
+            console.log(eventState);
+            return [...eventState];//...Ç…ÇµÇ»Ç¢Ç∆çXêVÇ≥ÇÍÇ»Ç©Ç¡ÇΩ
         default:
             return eventState;
     }

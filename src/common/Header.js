@@ -2,8 +2,10 @@ import React from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 import '../style/theme.css';
+import theme from '../style/themeColor';
 
 export default function Header(props) {
     return (
@@ -15,6 +17,15 @@ export default function Header(props) {
                         {props.text}
                     </Typography>
                 </Toolbar>
+                {(() => {
+                    if (props.onLoad) {
+                        return (
+                            <LinearProgress
+                                style={{color:"#aaaaaa"}}
+                />);
+        }
+    })()
+    }
             </AppBar>
             <div style={{ height: 80 }} />
         </div>

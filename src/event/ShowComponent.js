@@ -4,6 +4,7 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import DateRangeIcon from '@material-ui/icons/DateRange';
 import PlaceIcon from '@material-ui/icons/Place';
 
@@ -13,15 +14,17 @@ import '../style/theme.css';
 export default class EventShow extends Component {
     constructor(props) {
         super(props);
-        console.log(props.match.params.id);
+        if (!props.event) {
+            props.fetch(props.match.params.id);
+        }
+        document.body.className = "body";
     }
 
     render() {
         if (!this.props.event) {
             return (
                 <div>
-                    <Header text="GAMMA Event" />
-                    Page did not found.
+                    <Header text="GAMMA Event" onLoad/>
                 </div>
             );
         }
