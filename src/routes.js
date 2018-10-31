@@ -15,7 +15,7 @@ const Routes = (props) => (
                 <Route exact path="/" component={App} />
                 <Route path="/blogs" component={Articles} />
                 <Route exact path="/events" component={EventList} />
-                <Route path="/events/:id" component={EventShow} />
+                <Route path="/events/:state/:id" component={EventShow} />
             </div>
         </BrowserRouter>
     </Provider>

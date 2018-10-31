@@ -7,7 +7,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-    fetch: fetchEvents(dispatch)//ここで処理実行(リスナー登録)
+    fetch: state=>fetchEvents(state,dispatch)//ここで処理実行(リスナー登録)
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EventList);

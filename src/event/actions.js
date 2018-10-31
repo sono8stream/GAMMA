@@ -3,8 +3,8 @@ import { firebaseDB } from '../firebase';
 export const FETCH_EVENTS = "FETCH_EVENTS";
 export const FETCH_A_EVENT = "FETCH_A_EVENT";
 
-export function fetchEvents(dispatch) {
-    let ref = firebaseDB.ref('events');
+export function fetchEvents(state,dispatch) {
+    let ref = firebaseDB.ref('events/'+state);
     ref.on("value", snapshot => {
         dispatch({
             type: FETCH_EVENTS,
@@ -13,9 +13,9 @@ export function fetchEvents(dispatch) {
     });
 }
 
-export function fetchAEvent(eventId, dispatch) {
-    let ref = firebaseDB.ref('events/' + eventId);
-    console.log("fetch event" + eventId);
+export function fetchAEvent(state,eventId, dispatch) {
+    let ref = firebaseDB.ref('events/' + state + "/" + eventId);
+    console.log("fetch event:" + eventId);
     ref.on("value", snapshot => {
         dispatch({
             type: FETCH_A_EVENT,

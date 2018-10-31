@@ -8,12 +8,14 @@ export default function eventReducer(eventState = [], action) {
                 Object.keys(action.events).forEach(id => {
                     let event = action.events[id];
                     events.push({
-                            title: event.title,
-                            id: id,
-                            date: event.date,
-                            place: event.place,
-                            text: event.text,
-                        });
+                        id: id,
+                        title: event.title,
+                        start: event.start,
+                        end: event.end,
+                        place: event.place,
+                        participants: event.participants,
+                        text: event.text,
+                    });
                 });
             }
             console.log([...events]);
@@ -21,10 +23,12 @@ export default function eventReducer(eventState = [], action) {
         case FETCH_A_EVENT:
             let e = action.event;
             eventState.push({
-                title: e.title,
                 id: action.id,
-                date: e.date,
+                title: e.title,
+                start: e.start,
+                end: e.end,
                 place: e.place,
+                participants: e.participants,
                 text: e.text,
             });
             console.log(eventState);

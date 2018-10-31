@@ -17,10 +17,11 @@ export default class EventList extends Component {
     constructor(props) {
         super(props);
         document.body.className = "body";
+        props.fetch("upcoming");
     }
 
     toShow(id) {
-        this.props.history.push(`/events/${id}`);
+        this.props.history.push(`/events/upcoming/${id}`);
     }
 
     render() {
@@ -32,29 +33,30 @@ export default class EventList extends Component {
         return (
             <div>
                 <Header text="GAMMA Event" />
-                <br/>
-                {this.props.events.map((event, id) =>
-                    <Grid item sm={4} xs={12} key={id}>
-                        <Card>
-                            <CardActionArea onClick={() => this.toShow(event.id)}>
-                                <CardContent>
-                                    <Typography variant="h6" align="center">
-                                        {event.title}
-                                    </Typography>
-                                    <Divider light />
-                                    <br />
-                                    <Typography variant="subtitle1" gutterBottom>
-                                        <DateRangeIcon />{event.date}
-                                        <PlaceIcon />{event.place}
-                                    </Typography>
-                                </CardContent>
-                            </CardActionArea>
-                        </Card>
-                    </Grid>
-                )}
+                <Grid container spacing={16}>
+                    {this.props.events.map((event, id) =>
+                        <Grid item sm={4} xs={12} key={id}>
+                            <Card>
+                                <CardActionArea onClick={() => this.toShow(event.id)}>
+                                    <CardContent>
+                                        <Typography variant="h6" align="center">
+                                            {event.title}
+                                        </Typography>
+                                        <Divider light />
+                                        <br />
+                                        <Typography variant="subtitle1" gutterBottom>
+                                            <DateRangeIcon />{event.start} ~ {event.end}
+                                            <br/>
+                                            <PlaceIcon />{event.place}
+                                        </Typography>
+
+                                    </CardContent>
+                                </CardActionArea>
+                            </Card>
+                        </Grid>
+                    )}
+                </Grid>
             </div>
         );
     }
 }
-
-//export default EventList;
