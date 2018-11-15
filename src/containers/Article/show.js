@@ -1,44 +1,92 @@
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import {firebaseDB} from '../../firebase';
 import remark from 'remark';
 import reactRenderer from 'remark-react';
 
-import Input from '@material-ui/core/Input';
+import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import List from '@material-ui/core/List';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import Chip from '@material-ui/core/Chip';
+import { Divider } from '@material-ui/core';
 
-const messageRef = firebaseDB.ref('messages');
+import Header from '../../common/Header';
+import Footer from '../../common/Footer';
+import '../../style/theme.css';
+import { button } from '../../style/themeColor';
+
+const blogRef = firebaseDB.ref('blogs');
 const processor=remark().use(reactRenderer);
 
-class ArticleShow extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            text: "# hello GAMMA.",
-        }
+export default class ArticleShow extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      author: '',
+      date: '',
+      title: '',
+      categories:['未分類'],
+      text: '',
+      error: '',
+      onPreview: false,
     }
 
-    onTextChange(e) {
-        this.setState({ text: e.target.value });
-    }
+    this.ref = blogRef.child(props.match.params.id);
+    this.ref.on('value', snapshot => {
+      let val = snapshot.val();
+      let categories = this.state.categories;
+      if (val.categories) {
+        Object.keys(val.categories).forEach(key => {
+          categories.push(key);
+        });
+      }
+      this.setState({
+        author: val.author,
+        date: val.date,
+        title: val.title,
+        categories: categories,
+        text: val.text,
+      });
+      console.log(categories);
+    });
+  }
 
-    render() {
+  render() {
 
-        return (
-            <div>
-                <span>
-                    <Input value={this.state.text} multiline="true"
-                        onChange={(e) => this.onTextChange(e)} />
-                </span>
-                <span>
-                    {processor.processSync(this.state.text).contents}
-                </span>
-            </div>
-        );
-    }
+    return (
+      <div>
+        <Header text='GAMMA Blog' />
+        <Grid container spacing={16} justify='center'>
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <Typography variant='h5' gutterBottom>
+                  {this.state.title}
+                </Typography>
+                <Typography variant='subtitle2' gutterBottom>
+                  {`${this.state.date}   by ${this.state.author}`}
+                </Typography>
+                {this.state.categories.map((category) => (
+                  <Chip
+                    label={category}
+                    clickable
+                    variant='outlined'
+                  />
+                ))}
+                <br />
+                <br />
+                <Divider light />
+                <Typography variant='body2'>
+                  {processor.processSync(this.state.text).contents}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+        <Footer />
+      </div >
+    );
+  }
 }
-
-export default ArticleShow;

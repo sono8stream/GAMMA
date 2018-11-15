@@ -18,31 +18,40 @@ const styles = {
 }
 
 function Header(props) {
-    let { classes } = props;
-    return (
-        <div>
-            <AppBar position="fixed">
-                <Toolbar variant="dense"
-                    className="primary">
-                    <Typography variant="h5" color="inherit">
-                        {props.text}
-                    </Typography>
-                </Toolbar>
-                {(() => {
-                    if (props.onLoad) {
-                        return (
-                            <LinearProgress
-                                classes={{
-                                    colorPrimary: classes.colorPrimary,
-                                    barColorPrimary: classes.barColorPrimary,
-                                }}
-                            />);
-                    }
-                })()}
-            </AppBar>
-            <div style={{ height: 60 }} />
+  let { classes } = props;
+
+  return (
+    <div>
+      <AppBar position="absolute">
+        <div style={{
+          backgroundColor: colors.primaryDark,
+          height: 5,
+        }}>
         </div>
-    );
+        <div
+          style={{
+            backgroundColor: colors.primary,
+            height: 35,
+          }} >
+          <Typography variant="h5" color="inherit" align='center'>
+            {props.text}
+          </Typography>
+        </div>
+        {(() => {
+          if (props.onLoad) {
+            return (
+              <LinearProgress
+                classes={{
+                  colorPrimary: classes.colorPrimary,
+                  barColorPrimary: classes.barColorPrimary,
+                }}
+              />);
+          }
+        })()}
+      </AppBar>
+      <div style={{ height: 60 }} />
+    </div>
+  );
 }
 
 export default withStyles(styles)(Header);
