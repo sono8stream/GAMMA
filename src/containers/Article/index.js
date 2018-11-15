@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import {firebaseDB} from '../../firebase';
+import { firebaseAuth, firebaseDB } from '../../firebase';
 import remark from 'remark';
 import reactRenderer from 'remark-react';
 
@@ -26,6 +26,7 @@ class Articles extends Component {
     this.state = {
       articles: [],
       loadCompleted: false,
+      onLogin: false,
     };
     //document.body.className = "body";
   }
@@ -44,7 +45,13 @@ class Articles extends Component {
         articles: newArticles,
         loadCompleted: true
       });
-    })
+    });
+
+    firebaseAuth().onAuthStateChanged(user => {
+      if (user) {
+        this.setState({ onLogin: true });
+      }
+    });
   }
 
   createArticle() {
@@ -66,12 +73,18 @@ class Articles extends Component {
           <Header text="GAMMA Blog" />
 
           <Grid container spacing={16}>
-            <Grid item>
-            <Button color='secondary' variant='outlined'
-              onClick={() => this.createArticle()} >
-              新しく書く
-            </Button>
-            </Grid>
+            {(() => {
+              if (this.state.onLogin) {
+                return (
+                  <Grid item>
+                    <Button color='secondary' variant='outlined'
+                      onClick={() => this.createArticle()} >
+                      新しく書く
+                    </Button>
+                  </Grid>
+                );
+              }
+            })()}
             {this.state.articles.map((a, i) =>
               <Grid item xs={12} key={i}>
                 <Card>
