@@ -10,21 +10,16 @@ import colors from '../style/themeColor';
 
 function Footer(props) {
   return (
-    <div
-      style={{
-        margin: '0 -200%',
-        padding: '0 -200%',
-        background: colors.primaryLight,
-        textAlign: 'center'
-      }}>
+    <div>
       <div style={{ height: 20 }} />
       <Divider light />
       <br />
       <Typography variant='body2' color='inherit' align='center'>
-        contact : &nbsp;&nbsp;
-        <a href='mailto:student@kawaz.org'>E-Mail</a>
+        Contact Us : &nbsp;&nbsp;
+        <a href='mailto:student@kawaz.org' style={{ color: '#000000' }}>E-Mail</a>
         &nbsp;&nbsp;
-        <a href='https://twitter.com/kawaz_student' target="_blank">
+        <a href='https://twitter.com/kawaz_student'
+          target="_blank" style={{ color: '#000000' }}>
           Twitter
         </a>
         <br />

@@ -4,6 +4,8 @@ import remark from 'remark';
 import reactRenderer from 'remark-react';
 
 import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -22,7 +24,8 @@ import { button } from '../../style/themeColor';
 import { Divider } from '@material-ui/core';
 
 const blogRef = firebaseDB.ref('blogs');
-const processor=remark().use(reactRenderer);
+const processor = remark().use(reactRenderer);
+const previewChars = 20;
 
 export default class ArticleEdit extends Component {
   constructor(props) {
@@ -35,26 +38,54 @@ export default class ArticleEdit extends Component {
     ]
 
     this.state = {
+      onLoad: true,
+      onCreate: true,
       accessibility: this.accessibility[1],
       author: '',
       date: '',
       title: '',
       text: '',
+      preview:'',
       error: '',
       onPreview: false,
     }
 
-    this.ref = blogRef.child(props.match.params.id);
+    this.ref = blogRef.child(this.props.match.params.id);
+  }
+
+  componentWillMount() {
+
     this.ref.once('value', snapshot => {
       let val = snapshot.val();
-      this.setState({
-        accessibility: val.accessibility
-          ? val.accessibility : this.accessibility[1],
-        author: val.author,
-        date: val.date,
-        title: val.title,
-        text: val.text,
-      });
+      if (!val) {
+        this.setState({
+          onLoad: false,
+        });
+      }
+      else {
+        this.setState({
+          onLoad: false,
+          onCreate: false,
+          accessibility: val.accessibility,
+          author: val.author,
+          date: val.date,
+          title: val.title,
+          text: val.text,
+          preview: val.preview,
+        });
+      }
+    });
+  }
+
+  toShow() {
+    this.props.history.push(`/blogs/show/${this.props.match.params.id}`);
+  }
+
+  deleteArticle() {
+    this.ref.set(null, error => {
+      if (!error) {
+        this.props.history.push('/blogs');
+      }
     });
   }
 
@@ -70,6 +101,12 @@ export default class ArticleEdit extends Component {
     this.setState({ text: e.target.value });
   }
 
+  onPreviewChange(e) {
+    let text = e.target.value;
+    text = text.slice(0, previewChars - 1);
+    this.setState({ preview: text });
+  }
+
   switchPreview() {
     this.setState({ onPreview: !this.state.onPreview });
   }
@@ -81,12 +118,29 @@ export default class ArticleEdit extends Component {
       this.setState({ error: error });
     }
     else {
+      this.setState({ error: '' });
+      let date = this.state.date;
+      let preview = this.state.preview;
+      if (!preview) {
+        preview = this.state.text.slice(0, previewChars - 2);
+        if (this.state.text.length > previewChars) {
+          preview += '...';
+        }
+      }
+
       this.ref.update({
         accessibility: this.state.accessibility,
         title: this.state.title,
         text: this.state.text,
+        preview: preview,
+      }, e => {
+        if (e) {
+          this.setState({ error: '保存に失敗しました' });
+        }
+        else {
+          this.props.history.push(`/blogs/show/${this.props.match.params.id}`);
+        }
       });
-      this.setState({ error: '保存に成功しました' });
     }
   }
 
@@ -101,64 +155,104 @@ export default class ArticleEdit extends Component {
   }
 
   render() {
+    if (this.state.onLoad) {
+      return <Header text='GAMMA Blog' onLoad />
+    }
 
     return (
       <div>
         <Header text='GAMMA Blog' />
-        <Grid container spacing={16} justify='center'>
-          <Grid item xs={12} sm={8}>
-            <TextField
-              select
-              value={this.state.accessibility}
-              onChange={e => this.onAccessibilityChange(e)}
-              label='公開設定'
-              variant='outlined'>
-              {this.accessibility.map((option) => (
-                <MenuItem
-                  value={option}
-                  selected={option === this.state.accessibility}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-          <Grid item xs={12} sm={8}>
-            <TextField
-              required
-              label="タイトル"
-              fullWidth
-              value={this.state.title}
-              onChange={(e) => this.onTitleChange(e)}
-              margin="normal"
-              variant="outlined"
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              required
-              label="本文(マークダウン対応)"
-              multiline
-              fullWidth
-              value={this.state.text}
-              onChange={e => this.onTextChange(e)}
-              margin="normal"
-              variant="outlined"
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Button color='secondary'              variant='outlined'
-              onClick={() => this.switchPreview()} >
-              プレビューを見る
-              </Button>
-          </Grid>
-          <Grid item xs={12}>
-            <Button style={button.secondary}
-              onClick={() => this.onSave()} >
-              変更を保存
+        <Grid container spacing={16}>
+          <Grid item>
+            <Button color='primary' variant='outlined'
+              onClick={() => this.toShow()} >
+              編集をキャンセル
             </Button>
-            <Typography variant='body1' style={{ color: '#ff0000' }}>
-              {this.state.error}
-            </Typography>
+          </Grid>
+          {(() => {
+            if (!this.state.onCreate) {
+              return (
+                <Grid item>
+                  <Button color='secondary' variant='outlined'
+                    onClick={() => this.deleteArticle()} >
+                    削除する
+                  </Button>
+                </Grid>
+              );
+            }
+          })()}
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <Grid container spacing={16}>
+                  <Grid item xs={12}>
+                    <TextField
+                      select
+                      value={this.state.accessibility}
+                      onChange={e => this.onAccessibilityChange(e)}
+                      label='公開設定'
+                      variant='outlined'>
+                      {this.accessibility.map((option) => (
+                        <MenuItem
+                          value={option}
+                          selected={option === this.state.accessibility}>
+                          {option}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      label="タイトル"
+                      fullWidth
+                      value={this.state.title}
+                      onChange={(e) => this.onTitleChange(e)}
+                      margin="normal"
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      label="本文(マークダウン対応)"
+                      multiline
+                      fullWidth
+                      value={this.state.text}
+                      onChange={e => this.onTextChange(e)}
+                      margin="normal"
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="紹介文(20文字まで)"
+                      helperText="未入力の場合、本文の一部が適用されます"
+                      fullWidth
+                      value={this.state.preview}
+                      onChange={e => this.onPreviewChange(e)}
+                      margin="normal"
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button color='primary' variant='outlined'
+                      onClick={() => this.switchPreview()} >
+                      プレビューを見る
+              </Button>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button color='secondary' variant='outlined'
+                      onClick={() => this.onSave()} >
+                      変更を保存
+                    </Button>
+                    <Typography variant='body1' style={{ color: '#ff0000' }}>
+                      {this.state.error}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
           </Grid>
         </Grid>
         <Dialog

@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import {firebaseDB} from '../../firebase';
 import remark from 'remark';
 import reactRenderer from 'remark-react';
 
+import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
 import AppBar from '@material-ui/core/AppBar';
@@ -46,8 +47,13 @@ class Articles extends Component {
     })
   }
 
+  createArticle() {
+    let key = blogRef.push().key;
+    this.props.history.push(`/blogs/edit/${key}`);
+  }
+
   showArticle(id) {
-    this.props.history.push(`/blogs/${id}`);
+    this.props.history.push(`/blogs/show/${id}`);
   }
 
   render() {
@@ -59,31 +65,35 @@ class Articles extends Component {
         <div>
           <Header text="GAMMA Blog" />
 
-          <div style={{ margin: '1%' }}>
-            <Grid container spacing={16}>
-              {this.state.articles.map((a, i) =>
-                <Grid item xs={12} key={i}>
-                  <Card>
-                    <CardActionArea onClick={() => this.showArticle(a.id)}>
-                      <CardContent>
-                        <Typography color="textSecondary" gutterBottom>
-                          {a.date}
-                        </Typography>
-                        <Typography variant="h5" component="h2">
-                          {a.title}
-                        </Typography>
-                        <Divider light />
-                        <br />
-                        <Typography component="p">
-                          {a.preview}
-                        </Typography>
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
-                </Grid>
-              )}
+          <Grid container spacing={16}>
+            <Grid item>
+            <Button color='secondary' variant='outlined'
+              onClick={() => this.createArticle()} >
+              新しく書く
+            </Button>
             </Grid>
-          </div>
+            {this.state.articles.map((a, i) =>
+              <Grid item xs={12} key={i}>
+                <Card>
+                  <CardActionArea onClick={() => this.showArticle(a.id)}>
+                    <CardContent>
+                      <Typography color="textSecondary" gutterBottom>
+                        {a.date}
+                      </Typography>
+                      <Typography variant="h5" component="h2">
+                        {a.title}
+                      </Typography>
+                      <Divider light />
+                      <br />
+                      <Typography component="p">
+                        {a.preview}
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              </Grid>
+            )}
+          </Grid>
           <Footer />
         </div>
       );

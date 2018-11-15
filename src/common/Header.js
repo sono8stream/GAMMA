@@ -31,9 +31,9 @@ function Header(props) {
         <div
           style={{
             backgroundColor: colors.primary,
-            height: 35,
+            height: 40,
           }} >
-          <Typography variant="h5" color="inherit" align='center'>
+          <Typography variant="h5" color="inherit" align='center' gutterBottom>
             {props.text}
           </Typography>
         </div>

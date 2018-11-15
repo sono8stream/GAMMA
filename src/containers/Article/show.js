@@ -32,10 +32,18 @@ export default class ArticleShow extends Component {
       error: '',
       onPreview: false,
     }
+  }
 
-    this.ref = blogRef.child(props.match.params.id);
-    this.ref.on('value', snapshot => {
+  componentWillMount() {
+
+    let ref = blogRef.child(this.props.match.params.id);
+    ref.on('value', snapshot => {
       let val = snapshot.val();
+      if (!val) {
+        this.returnIndex();
+        return;
+      }
+
       let categories = this.state.categories;
       if (val.categories) {
         Object.keys(val.categories).forEach(key => {
@@ -53,12 +61,36 @@ export default class ArticleShow extends Component {
     });
   }
 
+  returnIndex() {
+    this.props.history.push('/blogs');
+  }
+
+  toEdit() {
+    this.props.history.push(`/blogs/edit/${this.props.match.params.id}`);
+  }
+
   render() {
+
+    if (!this.state.title) {
+      return <Header text='GAMMA Blog' onLoad/>
+    }
 
     return (
       <div>
         <Header text='GAMMA Blog' />
-        <Grid container spacing={16} justify='center'>
+        <Grid container spacing={16}>
+          <Grid item>
+            <Button variant='outlined'
+              onClick={() => this.returnIndex()} >
+              一覧に戻る
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant='outlined' color='primary'
+              onClick={() => this.toEdit()} >
+              編集する
+            </Button>
+          </Grid>
           <Grid item xs={12}>
             <Card>
               <CardContent>
@@ -83,6 +115,12 @@ export default class ArticleShow extends Component {
                 </Typography>
               </CardContent>
             </Card>
+          </Grid>
+          <Grid item xs={6}>
+            <Button variant='outlined'
+              onClick={() => this.returnIndex()} >
+              一覧に戻る
+            </Button>
           </Grid>
         </Grid>
         <Footer />
