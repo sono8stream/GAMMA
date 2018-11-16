@@ -22,12 +22,12 @@ export default class Login extends React.Component {
 
     let provider = new firebaseAuth.GithubAuthProvider();
     firebaseAuth().signInWithPopup(provider).then(result => {
-      if (result.credential != null) {
+      if (result.credential) {
         let ref = firebaseDB.ref('accounts').child(result.user.uid);
 
         let request = new XMLHttpRequest();
         ref.once('value', snapshot => {
-          let token = snapshot.val().token;
+          let token = result.credential.accessToken;
           request.open("GET",
             `https://api.github.com/user?access_token=${token}`);
           request.responseType = 'json';
@@ -40,7 +40,7 @@ export default class Login extends React.Component {
 
               ref.update({
                 email: result.user.email,
-                token: result.credential.accessToken,
+                token: token,
                 name: name,
               }, error => {
                 if (!error) {
