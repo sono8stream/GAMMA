@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import {firebaseDB} from '../../firebase';
+import { firebaseAuth, firebaseDB} from '../../firebase';
 import remark from 'remark';
 import reactRenderer from 'remark-react';
 
@@ -54,6 +54,7 @@ export default class ArticleEdit extends Component {
   }
 
   componentWillMount() {
+    window.scrollTo(0, 0);
 
     this.ref.once('value', snapshot => {
       let val = snapshot.val();
@@ -63,6 +64,10 @@ export default class ArticleEdit extends Component {
         });
       }
       else {
+        if (this.state.author && val.author !== this.state.author) {
+          this.toShow();
+        }
+
         this.setState({
           onLoad: false,
           onCreate: false,
@@ -73,6 +78,15 @@ export default class ArticleEdit extends Component {
           text: val.text,
           preview: val.preview,
         });
+      }
+    });
+
+    firebaseAuth().onAuthStateChanged(user => {
+      if (user) {
+        this.setState({ author: user.uid });
+      }
+      else {
+        this.toShow();
       }
     });
   }
@@ -119,7 +133,7 @@ export default class ArticleEdit extends Component {
     }
     else {
       this.setState({ error: '' });
-      let date = this.state.date;
+
       let preview = this.state.preview;
       if (!preview) {
         preview = this.state.text.slice(0, previewChars - 2);
@@ -130,6 +144,8 @@ export default class ArticleEdit extends Component {
 
       this.ref.update({
         accessibility: this.state.accessibility,
+        author: this.state.author,
+        date: this.getToday(),
         title: this.state.title,
         text: this.state.text,
         preview: preview,
@@ -142,6 +158,14 @@ export default class ArticleEdit extends Component {
         }
       });
     }
+  }
+
+  getToday() {
+    let today = new Date();
+    let month = ('00' + today.getMonth()).slice(-2);
+    let day = ('00' + today.getDate()).slice(-2);
+    let text = `${today.getFullYear()}/${month}/${day}`;
+    return text;
   }
 
   getValidationError() {

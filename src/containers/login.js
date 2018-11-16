@@ -3,6 +3,7 @@ import { firebaseAuth, firebaseDB } from '../firebase';
 
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import Header from '../common/Header';
 import Footer from '../common/Footer';
@@ -11,20 +12,44 @@ import { button } from '../style/themeColor';
 export default class Login extends React.Component {
   constructor(props) {
     super(props);
+
+    this.state = { onLogin: false };
   }
 
   login() {
+
+    this.setState({ onLogin: true });
+
     let provider = new firebaseAuth.GithubAuthProvider();
     firebaseAuth().signInWithPopup(provider).then(result => {
       if (result.credential != null) {
         let ref = firebaseDB.ref('accounts').child(result.user.uid);
-        ref.update({
-          email: result.user.email,
-          token: result.credential.accessToken,
-        }, error => {
-          if (!error) {
-            this.props.history.push('/blogs');
-          }
+
+        let request = new XMLHttpRequest();
+        ref.once('value', snapshot => {
+          let token = snapshot.val().token;
+          request.open("GET",
+            `https://api.github.com/user?access_token=${token}`);
+          request.responseType = 'json';
+          request.addEventListener("load", (event) => {
+            if (event.target.status === 200) {
+              let name = event.target.response.name;
+              if (!name) {
+                name = event.target.response.login;
+              }
+
+              ref.update({
+                email: result.user.email,
+                token: result.credential.accessToken,
+                name: name,
+              }, error => {
+                if (!error) {
+                  this.props.history.push('/blogs');
+                }
+              });
+            }
+          });
+          request.send();
         });
       }
     });
@@ -36,10 +61,19 @@ export default class Login extends React.Component {
         <Header text='GAMMA Login' />
         <Grid container justify='center'>
           <Grid item>
-            <Button style={button.secondary}
-              onClick={() => this.login()}>
-              ログインする
-          </Button>
+            {(() => {
+              if (this.state.onLogin) {
+                return <CircularProgress color='secondary' />;
+              }
+              else {
+                return (
+                  <Button style={button.secondary}
+                    onClick={() => this.login()}>
+                    ログインする
+                </Button>
+                );
+              }
+            })()}
           </Grid>
         </Grid>
         <Footer />

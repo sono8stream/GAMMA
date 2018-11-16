@@ -26,30 +26,52 @@ class Articles extends Component {
     this.state = {
       articles: [],
       loadCompleted: false,
-      onLogin: false,
+      uid: undefined,
     };
     //document.body.className = "body";
   }
 
   componentWillMount() {
+    window.scrollTo(0, 0);
+
     blogRef.on("child_added", (snapshot) => {
       let val = snapshot.val();
-      let newArticles = this.state.articles;
-      newArticles.push({
-        id: snapshot.key,
-        date: val.date,
-        preview: val.preview,
-        title: val.title,
-      });
-      this.setState({
-        articles: newArticles,
-        loadCompleted: true
+      firebaseDB.ref(`accounts/${val.author}`).once('value', account => {
+        let newArticles = this.state.articles;
+        let name = account.val() ? account.val().name : 'who';
+        let title = val.title;
+        if (val.accessibility !== '公開') {
+          title += ` (${val.accessibility})`;
+        }
+
+        newArticles.push({
+          id: snapshot.key,
+          accessibility: val.accessibility,
+          date: val.date,
+          author: val.author,
+          authorName: name,
+          preview: val.preview,
+          title: title,
+        });
+        newArticles.sort((a, b)=> {
+          if (a.date > b.date) {
+            return -1;
+          }
+          if (a.date < b.date) {
+            return 1;
+          }
+          return 0;
+        });
+        this.setState({
+          articles: newArticles,
+          loadCompleted: true,
+        });
       });
     });
 
     firebaseAuth().onAuthStateChanged(user => {
       if (user) {
-        this.setState({ onLogin: true });
+        this.setState({ uid: user.uid });
       }
     });
   }
@@ -74,7 +96,7 @@ class Articles extends Component {
 
           <Grid container spacing={16}>
             {(() => {
-              if (this.state.onLogin) {
+              if (this.state.uid) {
                 return (
                   <Grid item>
                     <Button color='secondary' variant='outlined'
@@ -85,26 +107,33 @@ class Articles extends Component {
                 );
               }
             })()}
-            {this.state.articles.map((a, i) =>
-              <Grid item xs={12} key={i}>
-                <Card>
-                  <CardActionArea onClick={() => this.showArticle(a.id)}>
-                    <CardContent>
-                      <Typography color="textSecondary" gutterBottom>
-                        {a.date}
-                      </Typography>
-                      <Typography variant="h5" component="h2">
-                        {a.title}
-                      </Typography>
-                      <Divider light />
-                      <br />
-                      <Typography component="p">
-                        {a.preview}
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Grid>
+            {this.state.articles.map((a, i) => {
+              if (a.accessibility === '公開'
+                || this.state.uid === a.author
+                || (a.accessibility === '限定公開' && this.state.uid)) {
+                return (
+                  <Grid item xs={12} key={i}>
+                    <Card>
+                      <CardActionArea onClick={() => this.showArticle(a.id)}>
+                        <CardContent>
+                          <Typography color="textSecondary" gutterBottom>
+                            {`${a.date}   by ${a.authorName}`}
+                          </Typography>
+                          <Typography variant="h6">
+                            {a.title}
+                          </Typography>
+                          <Divider light />
+                          <br />
+                          <Typography component="p">
+                            {a.preview}
+                          </Typography>
+                        </CardContent>
+                      </CardActionArea>
+                    </Card>
+                  </Grid>
+                );
+              }
+            }
             )}
           </Grid>
           <Footer />
