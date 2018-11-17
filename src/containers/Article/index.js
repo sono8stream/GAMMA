@@ -48,16 +48,17 @@ class Articles extends Component {
           id: snapshot.key,
           accessibility: val.accessibility,
           date: val.date,
+          time: val.time,
           author: val.author,
           authorName: name,
           preview: val.preview,
           title: title,
         });
         newArticles.sort((a, b)=> {
-          if (a.date > b.date) {
+          if (a.date+a.time > b.date+b.time) {
             return -1;
           }
-          if (a.date < b.date) {
+          if (a.date + a.time < b.date + b.time) {
             return 1;
           }
           return 0;
@@ -109,8 +110,8 @@ class Articles extends Component {
             })()}
             {this.state.articles.map((a, i) => {
               if (a.accessibility === '公開'
-                || this.state.uid === a.author
-                || (a.accessibility === '限定公開' && this.state.uid)) {
+                || (a.accessibility === '限定公開' && this.state.uid)
+                || this.state.uid === a.author) {
                 return (
                   <Grid item xs={12} key={i}>
                     <Card>

@@ -146,6 +146,7 @@ export default class ArticleEdit extends Component {
         accessibility: this.state.accessibility,
         author: this.state.author,
         date: this.getToday(),
+        time: this.getTime(),
         title: this.state.title,
         text: this.state.text,
         preview: preview,
@@ -166,6 +167,13 @@ export default class ArticleEdit extends Component {
     let day = ('00' + today.getDate()).slice(-2);
     let text = `${today.getFullYear()}/${month}/${day}`;
     return text;
+  }
+
+  getTime() {
+    let now = new Date();
+    let hour = ('00' + now.getHours()).slice(-2);
+    let minute = ('00' + now.getMinutes()).slice(-2);
+    return `${hour}:${minute}`;
   }
 
   getValidationError() {
