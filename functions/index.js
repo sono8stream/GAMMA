@@ -18,7 +18,14 @@ exports.addMessage = functions.https.onRequest((req, res) => {
 exports.generateNotification = functions.database.ref('/blogs/{pushId}')
   .onUpdate((change, context) => {
     let val = change.after.val();
+    let pushId = context.params.pushId;
     let bucket = gcs.bucket('gamma-creators.appspot.com');
+    let filePath = `blogs/notify/${pushId}`;
+
+    let file = bucket.file(filePath);
+    let uploadStream = file.createWriteStream({
+      metadata: { contentType: 'text/html' }
+    });
 
     let html =
       `<!DOCTYPE html>
@@ -31,21 +38,27 @@ exports.generateNotification = functions.database.ref('/blogs/{pushId}')
     <meta property="og:description" content="${val.preview}">
   </head>
   <body>
+    <script>
+      window.onload = ()=>{
+        window.location.href
+          = 'https://gamma-creators.firebaseapp.com/blogs/show/${change.after.key}';
+      };
+    </script>
   </body>
 </html>`;
 
-    let uploadStream
-      = bucket.file('test').createWriteStream({
-        metadata: { contentType: 'text/html' }
-      });
-
     let readStream = new Readable();
-    readStream.push(text);
+    readStream.push(html);
     readStream.push(null);
-    //return admin.database.ref('update').set(true);
 
     return new Promise((resolve, reject) => {
       readStream.on('error', reject).pipe(uploadStream)
-        .on('error', reject).on('finish', resolve);
+        .on('error', reject).on('finish', resolve/*file.getSignedUrl({
+          action: 'read',
+          expires: '03-31-2500'
+        }).then(signedUrl => {
+          console.log(signedUrl)
+          return resolve;
+        })*/);
     })
   });
