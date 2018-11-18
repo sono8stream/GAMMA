@@ -134,7 +134,7 @@ export default class ArticleEdit extends Component {
     else {
       this.setState({ error: '' });
 
-      let preview = this.state.preview;
+      let preview = this.state.preview.trim();
       if (!preview) {
         preview = this.state.text.slice(0, previewChars - 2);
         if (this.state.text.length > previewChars) {

@@ -1,4 +1,4 @@
-// The Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers.
+ï»¿// The Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers.
 const functions = require('firebase-functions');
 
 // The Firebase Admin SDK to access the Firebase Realtime Database.
@@ -9,25 +9,20 @@ const gcs = require('@google-cloud/storage')();
 const Readable = require('stream').Readable;
 const uuid = require('uuidv4');
 
-exports.addMessage = functions.https.onRequest((req, res) => {
-  const original = req.query.text;
-  return admin.database().ref('/update').push({ original: original }).then(snapshot => {
-    return res.redirect(303, snapshot.ref.toString());
-  })
-})
+const path = require('path');
 
 exports.generateNotification = functions.database.ref('/blogs/{pushId}')
-  .onUpdate((change, context) => {
+  .onWrite((change, context) => {
     let val = change.after.val();
     let beforeVal = change.before.val();
-    console.log(val.accessibility === beforeVal.accessibility);
-    if (val.accessibility != String('ŒöŠJ')) {
-      console.log("interrupt");
+    if (!val || val.accessibility !== 'å…¬é–‹'
+      /*|| (beforeVal && val.accessibility === beforeVal.accessibility))*/) {
+      console.log('interrupt');
       return null;
     }
     let pushId = context.params.pushId;
     let bucketName = 'gamma-creators.appspot.com';
-    let bucket = gcs.bucket('gamma-creators.appspot.com');
+    let bucket = gcs.bucket(bucketName);
     let filePath = `blogs/${pushId}`;
     let uuidVal = uuid();
 
@@ -35,9 +30,9 @@ exports.generateNotification = functions.database.ref('/blogs/{pushId}')
     let uploadStream = file.createWriteStream({
       metadata: {
         contentType: 'text/html',
-        metadata: {
+        /*metadata: {
           firebaseStorageDownloadTokens: uuidVal
-        }
+        }*/
       },
     });
 
@@ -46,16 +41,16 @@ exports.generateNotification = functions.database.ref('/blogs/{pushId}')
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <meta property="og:type" content="https://gamma-creators.firebaseapp.com">
+    <meta property="og:type" content="article">
     <meta property="og:site_name" content="GAMMA Blog">
-    <meta property="og:title" content="${val.title}">
+    <meta property="og:title" content="${val.title} - GAMMA Blog">
     <meta property="og:description" content="${val.preview}">
   </head>
   <body>
     <script>
       window.onload = ()=>{
         window.location.href
-          = 'https://gamma-creators.firebaseapp.com/blogs/show/${change.after.key}';
+          = 'https://gamma-creators.firebaseapp.com/blogs/show/${pushId}';
       };
     </script>
   </body>
@@ -67,7 +62,7 @@ exports.generateNotification = functions.database.ref('/blogs/{pushId}')
 
     return new Promise((resolve, reject) => {
       readStream.on('error', reject).pipe(uploadStream)
-        .on('error', reject).on('finish', () => {
+        .on('error', reject).on('finish', resolve/*() => {
           let url =
             'https://firebasestorage.googleapis.com/v0/b/'
             + bucketName
@@ -77,7 +72,55 @@ exports.generateNotification = functions.database.ref('/blogs/{pushId}')
             + uuidVal;
           admin.database().ref(`/notifications/blogs/${pushId}`)
             .set({ url: url, state: val.accessibility })
-            .then(resolve).catch(reject);
-        });
+            .then(() => {
+              admin.database().ref('update').set(true)
+                .then(resolve).catch(reject);
+            }).catch(reject);
+        }*/);
     });
+  });
+
+exports.getNotifyLink = functions.storage.object().onMetadataUpdate(object => {
+
+  let filePath = object.name;
+  console.log(filePath);
+  if (path.dirname(filePath) !== 'blogs') {
+    return null;
+  }
+
+  let fileName = path.basename(filePath);
+  let token = object.metadata.firebaseStorageDownloadTokens;
+  console.log(token);
+  let bucketName = 'gamma-creators.appspot.com';
+
+  let url =
+    'https://firebasestorage.googleapis.com/v0/b/'
+    + bucketName
+    + '/o/'
+    + encodeURIComponent(filePath)
+    + '?alt=media&token='
+    + token;
+
+  return new Promise((resolve, reject) => {
+    admin.database().ref(`/notifications/blogs/${fileName}`)
+      .set({ url: url })
+      .then(() => {
+        admin.database().ref('update').set(true)
+          .then(resolve).catch(reject);
+      }).catch(reject);
+  });
+});
+
+exports.removeNotification = functions.database.ref('/update')
+  .onUpdate((change, context) => {
+    let val = change.after.val();
+    if (val) {
+      return null;
+    }
+    else {
+      return new Promise((resolve, reject) => {
+        admin.database().ref('/notifications').set(null)
+          .then(resolve).catch(reject);
+      });
+    }
   });
