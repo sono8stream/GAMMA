@@ -7,6 +7,7 @@ admin.initializeApp();
 
 const gcs = require('@google-cloud/storage')();
 const Readable = require('stream').Readable;
+const uuid = require('uuidv4');
 
 exports.addMessage = functions.https.onRequest((req, res) => {
   const original = req.query.text;
@@ -18,13 +19,26 @@ exports.addMessage = functions.https.onRequest((req, res) => {
 exports.generateNotification = functions.database.ref('/blogs/{pushId}')
   .onUpdate((change, context) => {
     let val = change.after.val();
+    let beforeVal = change.before.val();
+    console.log(val.accessibility === beforeVal.accessibility);
+    if (val.accessibility != String('ŒöŠJ')) {
+      console.log("interrupt");
+      return null;
+    }
     let pushId = context.params.pushId;
+    let bucketName = 'gamma-creators.appspot.com';
     let bucket = gcs.bucket('gamma-creators.appspot.com');
-    let filePath = `blogs/notify/${pushId}`;
+    let filePath = `blogs/${pushId}`;
+    let uuidVal = uuid();
 
     let file = bucket.file(filePath);
     let uploadStream = file.createWriteStream({
-      metadata: { contentType: 'text/html' }
+      metadata: {
+        contentType: 'text/html',
+        metadata: {
+          firebaseStorageDownloadTokens: uuidVal
+        }
+      },
     });
 
     let html =
@@ -53,12 +67,17 @@ exports.generateNotification = functions.database.ref('/blogs/{pushId}')
 
     return new Promise((resolve, reject) => {
       readStream.on('error', reject).pipe(uploadStream)
-        .on('error', reject).on('finish', resolve/*file.getSignedUrl({
-          action: 'read',
-          expires: '03-31-2500'
-        }).then(signedUrl => {
-          console.log(signedUrl)
-          return resolve;
-        })*/);
-    })
+        .on('error', reject).on('finish', () => {
+          let url =
+            'https://firebasestorage.googleapis.com/v0/b/'
+            + bucketName
+            + '/o/'
+            + encodeURIComponent(filePath)
+            + '?alt=media&token='
+            + uuidVal;
+          admin.database().ref(`/notifications/blogs/${pushId}`)
+            .set({ url: url, state: val.accessibility })
+            .then(resolve).catch(reject);
+        });
+    });
   });
