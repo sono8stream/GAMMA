@@ -30,9 +30,9 @@ exports.generateNotification = functions.database.ref('/blogs/{pushId}')
     let uploadStream = file.createWriteStream({
       metadata: {
         contentType: 'text/html',
-        /*metadata: {
+        metadata: {
           firebaseStorageDownloadTokens: uuidVal
-        }*/
+        }
       },
     });
 
@@ -45,6 +45,7 @@ exports.generateNotification = functions.database.ref('/blogs/{pushId}')
     <meta property="og:site_name" content="GAMMA Blog">
     <meta property="og:title" content="${val.title} - GAMMA Blog">
     <meta property="og:description" content="${val.preview}">
+    <meta property="og:image" content="https://firebasestorage.googleapis.com/v0/b/gamma-creators.appspot.com/o/water-drop.png?alt=media&token=3a17b678-656c-485d-8b6c-cdadc2fda1ec">
   </head>
   <body>
     <script>
@@ -62,7 +63,7 @@ exports.generateNotification = functions.database.ref('/blogs/{pushId}')
 
     return new Promise((resolve, reject) => {
       readStream.on('error', reject).pipe(uploadStream)
-        .on('error', reject).on('finish', resolve/*() => {
+        .on('error', reject).on('finish', () => {
           let url =
             'https://firebasestorage.googleapis.com/v0/b/'
             + bucketName
@@ -76,10 +77,11 @@ exports.generateNotification = functions.database.ref('/blogs/{pushId}')
               admin.database().ref('update').set(true)
                 .then(resolve).catch(reject);
             }).catch(reject);
-        }*/);
+        });
     });
   });
 
+/*
 exports.getNotifyLink = functions.storage.object().onMetadataUpdate(object => {
 
   let filePath = object.name;
@@ -110,6 +112,7 @@ exports.getNotifyLink = functions.storage.object().onMetadataUpdate(object => {
       }).catch(reject);
   });
 });
+*/
 
 exports.removeNotification = functions.database.ref('/update')
   .onUpdate((change, context) => {
